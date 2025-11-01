@@ -1,0 +1,41 @@
+
+---
+
+## 🧩 `.gitignore` — para `customers-api` y `orders-api`
+
+Usa el mismo en ambas carpetas (`customers-api/.gitignore` y `orders-api/.gitignore`):
+
+```gitignore
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment files
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+logs/*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build output
+dist/
+build/
+
+# Docker
+docker-compose.override.yml
+
+# VSCode
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
