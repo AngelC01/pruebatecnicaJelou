@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post('/', ctrl.create);
 router.post('/:id/confirm', ctrl.confirmOrder);
+router.get('/', ctrl.getOrders);
 
 
 export default router;

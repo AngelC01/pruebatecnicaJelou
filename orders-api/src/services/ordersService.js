@@ -26,3 +26,7 @@ export  const confirmOrder= async (orderId, idempotencyKey) =>{
   const result =  repo.confirmOrderSP(orderId, idempotencyKey);
   return result;
 }
+
+export const getOrders = async (filters) => {
+  return await repo.getOrdersSP(filters);
+};

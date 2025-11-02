@@ -1,4 +1,4 @@
-import { createOrderSchema } from '../validators/ordersValidator.js';
+import { createOrderSchema, getOrdersSchema } from '../validators/ordersValidator.js';
 import { ZodError } from 'zod';
 
 import * as service from '../services/ordersService.js';
@@ -41,3 +41,23 @@ export  const  confirmOrder= async(req, res, next) =>{
     });
   }
 }
+
+
+export const getOrders = async (req, res, next) => {
+  try {
+    const parsed = getOrdersSchema.parse(req.query);
+
+    const orders = await service.getOrders(parsed);
+
+    return res.json({ success: true, data: orders });
+  } catch (err) {
+     if (err instanceof ZodError) {
+      const messages = err.errors.map(e => ({
+        field: e.path.join('.'),
+        message: e.message
+      }));
+      return res.status(400).json({ errors: messages });
+    }
+    next(err); 
+  }
+};

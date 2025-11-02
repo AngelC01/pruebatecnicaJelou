@@ -32,8 +32,8 @@ BEGIN
     LEFT JOIN order_items i ON o.id = i.order_id
     WHERE 
         (p_status IS NULL OR o.status = p_status)
-        AND (p_from IS NULL OR o.created_at >= p_from)
-        AND (p_to IS NULL OR o.created_at <= p_to)
+        AND (p_from IS NULL OR o.created_at <= p_from)
+        AND (p_to IS NULL OR o.created_at >= p_to)
         AND (p_cursor IS NULL OR o.id > p_cursor)
     GROUP BY o.id
     ORDER BY o.id ASC
@@ -41,3 +41,4 @@ BEGIN
 END$$
 
 DELIMITER ;
+
