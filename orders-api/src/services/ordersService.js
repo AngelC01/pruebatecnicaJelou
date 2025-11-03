@@ -14,19 +14,34 @@ export const createOrder = async (payload) => {
     throw new Error("Order must contain at least one item");
   }
 
-    return  repo.createOrder(customer_id, items);
+  return repo.createOrder(customer_id, items);
 
 
 };
 
-export  const confirmOrder= async (orderId, idempotencyKey) =>{
+export const confirmOrder = async (orderId, idempotencyKey) => {
   if (!idempotencyKey) {
     throw new Error('Missing X-Idempotency-Key header');
   }
-  const result =  repo.confirmOrderSP(orderId, idempotencyKey);
+  const result = repo.confirmOrderSP(orderId, idempotencyKey);
   return result;
 }
 
 export const getOrders = async (filters) => {
   return await repo.getOrdersSP(filters);
+};
+
+export const cancelOrder = async (orderId) => {
+  if (!orderId || isNaN(orderId)) {
+    throw new Error('Invalid order ID');
+  }
+
+  const result = await repo.cancelOrderSP(orderId);
+  return result;
+};
+
+
+export const getOrderById = async (orderId) => {
+  const result = await repo.getOrderById(orderId);
+  return result;
 };

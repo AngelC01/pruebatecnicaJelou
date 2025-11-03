@@ -1,0 +1,309 @@
+openapi: 3.0.0
+info:
+  title: Products & Orders API
+  version: 1.0.0
+  description: API para la gestión de productos y pedidos.
+servers:
+  - url: http://localhost:3002
+    description: Servidor local
+
+tags:
+  - name: Products
+    description: Operaciones sobre productos
+  - name: Orders
+    description: Operaciones sobre pedidos
+
+components:
+  schemas:
+    OrderStatus:
+      type: integer
+      enum: [0, 1, 2, 3]
+      description: |
+        Estado de la orden:
+        - 0 = ALL  
+        - 1 = CREATED  
+        - 2 = CONFIRMED  
+        - 3 = CANCELED  
+
+paths:
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Crear un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sku
+                - name
+                - price_cents
+                - stock
+              properties:
+                sku:
+                  type: string
+                  example: "PROD-0951"
+                name:
+                  type: string
+                  example: "Teclado mecánico RGB"
+                price_cents:
+                  type: integer
+                  example: 6000
+                stock:
+                  type: integer
+                  example: 80
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              example:
+                success: true
+                product_id: 7
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Obtener un producto por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              example:
+                id: 4
+                sku: "PROD-0951"
+                name: "Teclado mecánico RGB"
+                price_cents: 6000
+                stock: 80
+                created_at: "2025-11-02T19:17:20.000Z"
+        '404':
+          description: Producto no encontrado
+    patch:
+      tags:
+        - Products
+      summary: Actualizar producto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 4
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price_cents:
+                  type: integer
+                  example: 129900
+                stock:
+                  type: integer
+                  example: 102
+      responses:
+        '200':
+          description: Actualizado correctamente
+          content:
+            application/json:
+              example:
+                success: true
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Buscar órdenes con filtros
+      description: Retorna una lista paginada de órdenes según los filtros aplicados.
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+          description: Estado de la orden
+          example: 2
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date
+          description: Fecha inicial (YYYY-MM-DD)
+          example: "2025-11-01"
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date
+          description: Fecha final (YYYY-MM-DD)
+          example: "2025-11-02"
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+          example: 0
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          example: 30
+      responses:
+        '200':
+          description: Lista de órdenes encontradas
+          content:
+            application/json:
+              example:
+                items:
+                  - order_id: 101
+                    customer_id: 2
+                    customer_name: "Angel Cevallos"
+                    status: "CONFIRMED"
+                    total_cents: 459900
+                    created_at: "2025-11-02T20:30:00.000Z"
+                  - order_id: 102
+                    customer_id: 3
+                    customer_name: "Maria Perez"
+                    status: "CREATED"
+                    total_cents: 129900
+                    created_at: "2025-11-02T21:00:00.000Z"
+
+    post:
+      tags:
+        - Orders
+      summary: Crear una nueva orden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_id
+                - items
+              properties:
+                customer_id:
+                  type: integer
+                  example: 2
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - product_id
+                      - qty
+                    properties:
+                      product_id:
+                        type: integer
+                        example: 5
+                      qty:
+                        type: integer
+                        example: 3
+      responses:
+        '201':
+          description: Orden creada
+          content:
+            application/json:
+              example:
+                success: true
+                order_id: 116
+
+  /orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Obtener orden por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 105
+      responses:
+        '200':
+          description: Orden encontrada
+          content:
+            application/json:
+              example:
+                success: true
+                order:
+                  order_id: 105
+                  customer_id: 2
+                  customer_name: "AngelE Cevallos dd"
+                  status: "CREATED"
+                  created_at: "2025-11-02T22:20:19.000Z"
+                  total_cents: 649500
+                  items:
+                    - product_id: 1
+                      product_name: "Producto 1234"
+                      qty: 3
+                      unit_price_cents: 129900
+                      subtotal_cents: 389700
+                    - product_id: 4
+                      product_name: "Teclado mecánico RGB"
+                      qty: 2
+                      unit_price_cents: 129900
+                      subtotal_cents: 259800
+
+  /orders/{id}/confirm:
+    post:
+      tags:
+        - Orders
+      summary: Confirmar una orden (idempotente)
+      description: Confirma una orden existente usando X-Idempotency-Key.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 103
+        - in: header
+          name: x-idempotency-key
+          required: true
+          schema:
+            type: string
+            example: "abc123-unique-key"
+      responses:
+        '200':
+          description: Orden confirmada
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  status: "CONFIRMED"
+                  message: "Order 103 confirmed successfully"
+
+  /orders/{id}/cancel:
+    post:
+      tags:
+        - Orders
+      summary: Cancelar una orden
+      description: Cancela una orden existente.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 116
+      responses:
+        '200':
+          description: Orden cancelada
+          content:
+            application/json:
+              example:
+                success: true
+                message: "Order 116 canceled successfully"

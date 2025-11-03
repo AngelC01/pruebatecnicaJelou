@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: Customers API
+  version: 1.0.0
+  description: API para gestionar clientes y autenticación
+
+servers:
+  - url: http://localhost:3001
+    description: Servidor local
+
+tags:
+  - name: Auth
+    description: Autenticación del sistema
+  - name: Customers
+    description: Operaciones relacionadas con clientes
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Iniciar sesión y obtener token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: admin@example.com
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              example:
+                token: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzYyMTM0MTUwLCJleHAiOjE3NjIxMzc3NTB9.JpaZhsQhmRzVhFyVTZoiP0QKGdT3RGMMK0kfOQy90WI
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              example:
+                error: Invalid credentials
+
+  /customers:
+    post:
+      tags:
+        - Customers
+      summary: Crear un nuevo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+              required:
+                - name
+                - email
+                - phone
+            example:
+              name: Angel EDUAR2D2O Cevallos
+              email: angel.ceval33lo3222s@example.com
+              phone: "+593949999999"
+      responses:
+        '201':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              example:
+                success: true
+                customer_id: 7
+
+    get:
+      tags:
+        - Customers
+      summary: Buscar clientes
+      description: Buscar clientes por texto en nombre o email, con paginación
+      parameters:
+        - name: search
+          in: query
+          description: Texto a buscar
+          required: false
+          schema:
+            type: string
+            example: angel
+        - name: cursor
+          in: query
+          description: Cursor para paginación
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: Cantidad máxima de resultados
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Lista de clientes encontrados
+          content:
+            application/json:
+              example:
+                items:
+                  - id: 2
+                    name: AngelE Cevallos dd
+                    email: angel.villacis@example.com
+                    phone: "+593799699497"
+                    created_at: "2025-11-02T19:17:20.000Z"
+                  - id: 3
+                    name: Angel Cevallos
+                    email: angel.cevallos@example.com
+                    phone: "+593999999999"
+                    created_at: "2025-11-02T19:28:36.000Z"
+
+  /customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Obtener cliente por ID
+      parameters:
+        - name: id
+          in: path
+          description: ID del cliente
+          required: true
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              example:
+                id: 2
+                name: AngelE Cevallos dd
+                email: angel.villacis@example.com
+                phone: "+593799699497"
+                created_at: "2025-11-02T19:17:20.000Z"
+                is_active: 1
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              example:
+                error: Customer not found
+
+    delete:
+      tags:
+        - Customers
+      summary: Eliminar cliente
+      parameters:
+        - name: id
+          in: path
+          description: ID del cliente
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: Cliente eliminado
+          content:
+            application/json:
+              example:
+                success: true
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              example:
+                error: Customer not found

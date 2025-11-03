@@ -3,12 +3,14 @@ FROM node:22-alpine
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci --production
+
+# Instala TODAS las dependencias (producción + desarrollo)
+RUN npm install
 
 COPY . .
 
 EXPOSE 3001
 
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 
-CMD ["node", "src/index.js"]
+CMD ["npm", "start"]

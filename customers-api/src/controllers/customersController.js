@@ -1,12 +1,21 @@
 import { createCustomerSchema, updateCustomerSchema } from '../validators/customersValidator.js';
 import * as service from '../services/customersService.js';
+import { ZodError } from 'zod';
 
 export const create = async (req, res, next) => {
   try {
     const parsed = createCustomerSchema.parse(req.body);
-    await service.createCustomer(parsed);
-    return res.status(201).json({ success: true });
+    const result = await service.createCustomer(parsed);
+    return res.status(200).json(result);
   } catch (err) {
+    if (err instanceof ZodError) {
+      const messages = err.errors.map(e => ({
+        field: e.path.join('.'),
+        message: e.message
+      }));
+      return res.status(400).json({ errors: messages });
+    }
+
     return next(err);
   }
 };
@@ -36,7 +45,16 @@ export const update = async (req, res, next) => {
     const parsed = updateCustomerSchema.parse(req.body);
     await service.update(id, parsed);
     res.json({ success: true });
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const messages = err.errors.map(e => ({
+        field: e.path.join('.'),
+        message: e.message
+      }));
+      return res.status(400).json({ errors: messages });
+    }
+    next(err);
+  }
 };
 
 export const remove = async (req, res, next) => {

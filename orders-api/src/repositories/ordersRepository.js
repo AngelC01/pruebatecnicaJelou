@@ -6,7 +6,12 @@ export const createOrder = async (customer_id, items) => {
     customer_id,
     JSON.stringify(items)
   ]);
-  return { success: true };
+  const orderId = rows?.[0]?.[0]?.order_id || null;
+
+  return {
+    success: true,
+    order_id: orderId,
+  };
 };
 
 export const confirmOrderSP = async (orderId, idempotencyKey) => {
@@ -14,13 +19,13 @@ export const confirmOrderSP = async (orderId, idempotencyKey) => {
     'CALL sp_confirm_order_idempotent(?, ?)',
     [orderId, idempotencyKey]
   );
-  // El SP devuelve un SELECT con alias "response"
+
   const result = rows[0][0]?.response || '{}';
   if (typeof result === 'object') {
     return result;
   }
 
-  // Si es string JSON, intentar parsear
+
   try {
     return JSON.parse(result);
   } catch {
@@ -37,6 +42,23 @@ export const getOrdersSP = async ({ status, from, to, cursor, limit }) => {
     [dbStatus, from || null, to || null, cursor, lim]
   );
 
-  // El resultado del SP está en la primera posición
   return rows[0];
+};
+
+
+export const cancelOrderSP = async (orderId) => {
+  const [rows] = await db.query('CALL sp_cancel_order(?)', [orderId]);
+  return rows[0][0];
+};
+
+export const getOrderById = async (orderId) => {
+  const [results] = await db.query('CALL sp_get_order_by_id(?)', [orderId]);
+
+  const order = results[0]?.[0];
+  const items = results[1] || [];
+
+  return {
+    ...order,
+    items
+  };
 };

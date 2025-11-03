@@ -3,7 +3,6 @@
 
 ## 🧩 `.gitignore` — para `customers-api` y `orders-api`
 
-Usa el mismo en ambas carpetas (`customers-api/.gitignore` y `orders-api/.gitignore`):
 
 ```gitignore
 # Node.js

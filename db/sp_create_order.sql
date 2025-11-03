@@ -1,6 +1,4 @@
 DELIMITER $$
-
-
 CREATE PROCEDURE sp_create_order(
     IN p_customer_id INT,
     IN p_items JSON
@@ -26,7 +24,7 @@ BEGIN
 
     START TRANSACTION;
 
-    -- Crear la orden base
+
     INSERT INTO orders (customer_id, status, created_at, total_cents)
     VALUES (p_customer_id, 'CREATED', NOW(), 0);
 
@@ -40,7 +38,7 @@ BEGIN
             LEAVE read_loop;
         END IF;
 
-        -- Verificar existencia del producto y stock suficiente
+
         SELECT stock, price_cents
         INTO v_stock, v_price_cents
         FROM products
@@ -57,30 +55,32 @@ BEGIN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @msg;
         END IF;
 
-        -- Calcular subtotal
+
         SET v_subtotal = v_qty * v_price_cents;
 
-        -- Insertar detalle de la orden
+
         INSERT INTO order_items (order_id, product_id, qty, unit_price_cents, subtotal_cents)
         VALUES (v_order_id, v_product_id, v_qty, v_price_cents, v_subtotal);
 
-        -- Actualizar stock
+
         UPDATE products
         SET stock = stock - v_qty
         WHERE id = v_product_id;
 
-        -- Acumular total
+
         SET v_total = v_total + v_subtotal;
     END LOOP;
 
     CLOSE cur;
 
-    -- Actualizar total en la tabla de órdenes
+
     UPDATE orders
     SET total_cents = v_total
     WHERE id = v_order_id;
 
     COMMIT;
+
+    SELECT v_order_id AS order_id;
 END$$
 
 DELIMITER ;

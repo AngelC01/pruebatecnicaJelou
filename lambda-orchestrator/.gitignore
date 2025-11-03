@@ -1,0 +1,52 @@
+# =========================
+# Node.js / AWS Lambda
+# =========================
+
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos temporales
+*.tmp
+*.log
+*.bak
+*.swp
+.DS_Store
+
+# Builds y artefactos de despliegue
+dist/
+build/
+.bundle/
+.serverless/
+coverage/
+.aws-sam/
+.tmp/
+
+
+# Archivos del sistema / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Zips de despliegue
+*.zip
+
+# Tests
+coverage/
+.jest/
+.mocha/
+*.test.js
+*.spec.js
+
+# Archivos de CI/CD
+.gitlab-ci.yml
+.github/
+
+# Archivos de caché
+.cache/
+.eslintcache

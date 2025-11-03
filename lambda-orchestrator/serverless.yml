@@ -1,0 +1,29 @@
+service: lambda-orchestrator
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  environment:
+    CUSTOMERS_API_BASE: ${env:CUSTOMERS_API_BASE}
+    ORDERS_API_BASE: ${env:ORDERS_API_BASE}
+    CUSTOMERS_API_USER: ${env:CUSTOMERS_API_USER}
+    CUSTOMERS_API_PASSWORD: ${env:CUSTOMERS_API_PASSWORD}
+    PORT: ${env:PORT}
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: ${env:PORT}   
+    lambdaPort: 3005
+functions:
+  orchestrate:
+    handler: handler.orchestrate
+    events:
+      - http:
+          path: orchestrator/create-and-confirm-order
+          method: post

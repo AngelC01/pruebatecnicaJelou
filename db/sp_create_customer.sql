@@ -1,5 +1,5 @@
-DELIMITER $$
 
+DELIMITER $$
 CREATE PROCEDURE sp_create_customer (
     IN p_name VARCHAR(200),
     IN p_email VARCHAR(255),
@@ -7,6 +7,7 @@ CREATE PROCEDURE sp_create_customer (
 )
 BEGIN
     DECLARE v_exists INT;
+    DECLARE v_customer_id INT;
 
     SELECT COUNT(*) INTO v_exists
     FROM customers
@@ -18,6 +19,10 @@ BEGIN
     ELSE
         INSERT INTO customers (name, email, phone)
         VALUES (p_name, p_email, p_phone);
+
+        SET v_customer_id = LAST_INSERT_ID();
+
+        SELECT v_customer_id AS customer_id;
     END IF;
 END$$
 
