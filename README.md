@@ -1,4 +1,4 @@
-# 🧩 Products–Orders–Customers Microservices
+# 🧩 Products–Orders–Customers Microservicios
 
 Este proyecto contiene un entorno **Docker Compose** que levanta tres servicios conectados entre sí:
 
