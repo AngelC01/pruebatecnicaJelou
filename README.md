@@ -13,12 +13,17 @@ Este proyecto contiene un entorno **Docker Compose** que levanta tres servicios 
 ```
 /
 ├── docker-compose.yml
-├── seed.sql
+├── db
+|   ├── schema.sql
+|   ├── seed.sql
 ├── customers-api/
 │   ├── src/
 │   ├── package.json
 │   ├── openapi.yaml
 │   └── ...
+├── lambda-orchestrator/
+│   ├── src/
+|   └── ...
 └── orders-api/
     ├── src/
     ├── package.json
